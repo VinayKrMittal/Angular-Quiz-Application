@@ -1,0 +1,215 @@
+<div class="container">
+  <h3 style="text-align:center">
+    Welcome to Quiz Application &#x263A;
+  </h3>
+  <div class="card" [hidden]="isQuestionCardShow">
+    <div class="card-body">
+      <h5 class="card-title" style="text-align:center">Choose Option &#x263A; </h5>
+      <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
+      <div class="row justify-content-md-center">
+        <div class="col-sm-12 col-lg-3">
+          <button class="btn btn-block btn-outline-primary cursor-restriction" (click)="addQuestion()" style="margin-top: 24px;">
+            Add Questions </button>
+
+        </div>
+        <div class="col-sm-12 col-lg-3">
+          <button class="btn btn-block btn-outline-primary cursor-restriction" style="margin-top: 24px;" (click)="startQuiz()">
+            Start Quiz </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" [hidden]="!isQuestionCardShow">
+    <div class="card-body">
+      <form #questionTest="ngForm" novalidate>
+        <div *ngFor="let ques of allQuestions">
+          <div>{{ques.question}}</div>
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label">Choose Correct Option</label>
+            <div class="col-md-9 col-form-label">
+              <div class="form-check form-check-inline mr-1">
+                <input class="form-check-input" type="radio" name="{{ques.id}}" value="a" [(ngModel)]="ques.selected">
+                <label class="form-check-label">a) {{ques.a}} </label>
+              </div>
+              <div class="form-check form-check-inline mr-1">
+                <input class="form-check-input" type="radio" name="{{ques.id}}" value="b" [(ngModel)]="ques.selected">
+                <label class="form-check-label">b){{ques.b}}</label>
+              </div>
+              <div class="form-check form-check-inline mr-1">
+                <input class="form-check-input" type="radio" name="{{ques.id}}" value="c" [(ngModel)]="ques.selected">
+                <label class="form-check-label">c){{ques.c}}</label>
+              </div>
+              <div class="form-check form-check-inline mr-1">
+                <input class="form-check-input" type="radio" name="{{ques.id}}" value="d" [(ngModel)]="ques.selected">
+                <label class="form-check-label">d){{ques.d}}</label>
+              </div>
+            </div>
+          </div>
+          <hr>
+        </div>
+      </form>
+      <div class="row">
+        <div class="col-12" style="justify-content: center;display: flex;">
+          <button type="button" class="btn btn-default" (click)="HomePage()" style="margin-right: 30px;">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="submitTest()">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div bsModal #submitModal="bs-modal" class="modal fade" [config]="{backdrop: 'static'}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center" style="color: #196f77;">
+        <h4>Total Questions: {{allQuestions.length}} </h4>
+        <h4>
+          Total Answered: {{totalAnswered}}
+        </h4>
+        <h4>
+          Right Answer : {{rightAnswer}}
+        </h4>
+        <span>
+          <button type="button" class="btn btn-primary" (click)="checkAnswers()" style="margin-right: 17px;"> Answers</button>
+        </span>
+        <button type="button" class="btn btn-default" (click)="submitModal.hide()" style="margin-left: 17px;">Close</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<div bsModal #addQuestionModal="bs-modal" class="modal fade" [config]="{backdrop: 'static'}" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center" style="color: #196f77;">
+        <form #questionForm="ngForm"  novalidate>
+          <div class="row">
+            <div class="col-sm-12 col-12 col-lg-12">
+              <div class="form-group">
+                <label for="question" class="label-font"> Add Question</label>
+                <span style="color:red;" [hidden]="!(question?.invalid)">*</span>
+                <input type="text" class="form-control" name="question" placeholder="Enter Question" [(ngModel)]="questionObj.question" [ngClass]="{
+                      'is-invalid': question?.invalid && (question?.dirty ||question?.touched),
+                      'is-valid': question?.valid && (question?.dirty || question?.touched)
+                 }" #question="ngModel" required>
+                <div class="invalid-feedback" *ngIf="question.errors && (question.dirty || question.touched)">
+                  <p *ngIf="question.errors.required">Question Description is required</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12 col-12 col-lg-6">
+              <div class="form-group">
+                <label for="a">Option a.</label>
+                <span style="color:red;" [hidden]="!(a?.invalid)">*</span>
+                <input type="text" class="form-control" name="a" placeholder="Enter First Option" [(ngModel)]="questionObj.a" [ngClass]="{
+                              'is-invalid': a?.invalid && (a?.dirty ||a?.touched),
+                              'is-valid': a?.valid && (a?.dirty || a?.touched)
+                         }" #a="ngModel" required>
+                <div class="invalid-feedback" *ngIf="a.errors && (a.dirty || a.touched)">
+                  <p *ngIf="a.errors.required">Option is required</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-12 col-12 col-lg-6">
+              <div class="form-group">
+                <label for="b">Option b.</label>
+                <span style="color:red;" [hidden]="!(b?.invalid)">*</span>
+                <input type="text" class="form-control" name="b" placeholder="Enter Second Option" [(ngModel)]="questionObj.b" [ngClass]="{
+                          'is-invalid': b?.invalid && (b?.dirty ||b?.touched),
+                          'is-valid': b?.valid && (b?.dirty || b?.touched)
+                     }" #b="ngModel" required>
+                <div class="invalid-feedback" *ngIf="b.errors && (b.dirty || b.touched)">
+                  <p *ngIf="b.errors.required">Option is required</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12 col-12 col-lg-6">
+              <div class="form-group">
+                <label for="c">Option c.</label>
+                <span style="color:red;" [hidden]="!(c?.invalid)">*</span>
+                <input type="text" class="form-control" name="c" placeholder="Enter Third Option" [(ngModel)]="questionObj.c" [ngClass]="{
+                                'is-invalid': c?.invalid && (c?.dirty ||c?.touched),
+                                'is-valid': c?.valid && (c?.dirty || c?.touched)
+                           }" #c="ngModel" required>
+                <div class="invalid-feedback" *ngIf="c.errors && (c.dirty || c.touched)">
+                  <p *ngIf="c.errors.required">Option is required</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-12 col-12 col-lg-6">
+              <div class="form-group">
+                <label for="b">Option d.</label>
+                <span style="color:red;" [hidden]="!(d?.invalid)">*</span>
+                <input type="text" class="form-control" name="d" placeholder="Enter fourth Option" [(ngModel)]="questionObj.d" [ngClass]="{
+                            'is-invalid': d?.invalid && (d?.dirty ||d?.touched),
+                            'is-valid': d?.valid && (d?.dirty || d?.touched)
+                       }" #d="ngModel" required>
+                <div class="invalid-feedback" *ngIf="d.errors && (d.dirty || d.touched)">
+                  <p *ngIf="d.errors.required">Option is required</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label class="col-md-12 label-font">Choose Correct Answer Option
+              <span style="color:red;" [hidden]="!(answer?.invalid)">*</span>
+            </label>
+            <div class="col-md-12">
+              <div class="form-check form-check-inline mr-2">
+                <input class="form-check-input" type="radio" name="answer" value="a" [(ngModel)]="questionObj.answer" #answer="ngModel" required>
+                <label class="form-check-label">a.</label>
+              </div>
+              <div class="form-check form-check-inline mr-2">
+                <input class="form-check-input" type="radio" name="answer" value="b" [(ngModel)]="questionObj.answer" #answer="ngModel" required>
+                <label class="form-check-label">b.</label>
+              </div>
+              <div class="form-check form-check-inline mr-2">
+                <input class="form-check-input" type="radio" name="answer" value="c" [(ngModel)]="questionObj.answer" #answer="ngModel" required>
+                <label class="form-check-label">c.</label>
+              </div>
+              <div class="form-check form-check-inline mr-2">
+                <input class="form-check-input" type="radio" name="answer" value="d" [(ngModel)]="questionObj.answer" #answer="ngModel" required>
+                <label class="form-check-label">d.</label>
+              </div>
+            </div>
+          </div>
+        </form>
+        <span>
+          <button type="button" class="btn btn-primary" (click)="submitAddQuestion()" [disabled]="questionForm.invalid" [class.cursor-restriction]="questionForm.invalid"
+            style="margin-right: 17px;">ADD Question</button>
+        </span>
+        <button type="button" class="btn btn-default" (click)="addQuestionModal.hide()">Close</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<div bsModal #answerModal="bs-modal" class="modal fade" [config]="{backdrop: 'static'}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center" style="color: #196f77;">
+        <div *ngFor="let ques of allQuestions" [style.color]="!ques.selected? '#ffc107' : ques.selected == ques.answer ? 'green': 'red'">
+          <div>{{ques.question}}</div>
+          <div>Your Answer: {{ques[ques.selected]}}</div>
+          <div>Right Answer: {{ques.answer}}) {{ques[ques.answer]}}</div>
+          <hr>
+        </div>
+        <button type="button" class="btn btn-default" (click)="answerModal.hide()" style="margin-left: 17px;">Close</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
